@@ -23,5 +23,6 @@ FROM
 ## How to use
 
 ```bash
-  dotnet run --filePath=example/example.java --fileOutput=true --shortenedTableName=A
+  cd Class2Sql
+  dotnet run --filePath=from/example.java --fileOutput=true --shortenedTableName=A
 ```
