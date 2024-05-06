@@ -38,11 +38,11 @@ let makeClassInformationFromRecord (lines: string array) =
             if line.Contains(recordNamePrefix) || isStarted then
                 isStarted <- true
 
-                if isStarted then
-                    baseStr <- baseStr + line
+                baseStr <- baseStr + line
 
-                    if line.Contains(argsSuffix) then
-                        isEnded <- true
+                if line.Contains(argsSuffix) then
+                    isEnded <- true
+
 
     match baseStr.Length with
     | 0 -> Error "record is not found."
@@ -68,7 +68,7 @@ let makeClassInformationFromRecord (lines: string array) =
             let columnType = trimmedField.Split(" ")[0]
             fields <- List.append fields [ Field(name, columnType) ]
 
-        Ok(ClassInformation(baseStr[classNameStartAt..classNameEndAt], fields))
+        Ok(ClassInformation(baseStr[classNameStartAt..classNameEndAt].Trim(), fields))
 
 let makeClassInformationFromClass (lines: string array) =
     let mutable isStarted = false
@@ -78,17 +78,18 @@ let makeClassInformationFromClass (lines: string array) =
     let classNamePrefix = "class"
     let separator = "{"
     let argsSuffix = "}"
+    let delimiter = "---"
 
     for line in lines do
         if not isEnded then
-            if line.Contains(classNamePrefix) || isStarted then
+            if line.Contains(" " + classNamePrefix + " ") || isStarted then
                 isStarted <- true
 
-                if isStarted then
-                    baseStr <- baseStr + line + "---"
+                baseStr <- baseStr + line + delimiter
 
-                    if line.Contains(argsSuffix) then
-                        isEnded <- true
+                if line.Contains(argsSuffix) then
+                    isEnded <- true
+
 
     match baseStr.Length with
     | 0 -> Error "record is not found."
@@ -106,17 +107,18 @@ let makeClassInformationFromClass (lines: string array) =
 
         let mutable fields = []
 
-        let separatedFieldsArray = argsStr.Split("---")
+        let separatedFieldsArray = argsStr.Split(delimiter)
 
         for field in separatedFieldsArray do
-            if field.Trim().StartsWith("private") || field.Trim().StartsWith("public") then
-                let str = field.Trim()
-                let trimmedField = str[0 .. str.Length - 2]
+            let str = field.Trim()
+
+            if str.StartsWith("private") || str.StartsWith("public") then
+                let trimmedField = str[0 .. str.Length - 2].TrimEnd() // remove tailing ";"
                 let name = trimmedField.Split(" ")[2]
                 let columnType = trimmedField.Split(" ")[1]
                 fields <- List.append fields [ Field(name, columnType) ]
 
-        Ok(ClassInformation(baseStr[classNameStartAt..classNameEndAt], fields))
+        Ok(ClassInformation(baseStr[classNameStartAt..classNameEndAt].Trim(), fields))
 
 let makeClassInformation (lines: string array) =
     let recordNamePrefix = "record"
