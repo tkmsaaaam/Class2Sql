@@ -121,14 +121,12 @@ let makeClassInformationFromClass (lines: string array) =
         Ok(ClassInformation(baseStr[classNameStartAt..classNameEndAt].Trim(), fields))
 
 let makeClassInformation (lines: string array) =
-    let recordNamePrefix = "record"
-
-    let mutable result = Error "record is not contained."
+    let mutable result = Error "record or class is not contained."
 
     for i in 0 .. lines.Length - 1 do
         let line = lines[i]
 
-        if line.Contains(" " + recordNamePrefix + " ") then
+        if line.Contains(" record ") then
             result <- makeClassInformationFromRecord lines[i..]
         else if line.Contains(" class ") then
             result <- makeClassInformationFromClass lines[i..]
