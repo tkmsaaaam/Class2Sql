@@ -44,31 +44,29 @@ let makeClassInformationFromRecord (lines: string array) =
                     isEnded <- true
 
 
-    match baseStr.Length with
-    | 0 -> Error "record is not found."
-    | _ ->
-        let spaceLength = " ".Length
+    let spaceLength = " ".Length
 
-        let classNameStartAt =
-            baseStr.IndexOf(recordNamePrefix) + recordNamePrefix.Length + spaceLength
+    let classNameStartAt =
+        baseStr.IndexOf(recordNamePrefix) + recordNamePrefix.Length + spaceLength
 
-        let classNameEndAt = baseStr.IndexOf(separator) - separator.Length
-        let argsStartAt = baseStr.IndexOf(separator) + separator.Length
-        let argsEndAt = baseStr.IndexOf(argsSuffix) - argsSuffix.Length
+    let classNameEndAt = baseStr.IndexOf(separator) - separator.Length
+    let argsStartAt = baseStr.IndexOf(separator) + separator.Length
+    let argsEndAt = baseStr.IndexOf(argsSuffix) - argsSuffix.Length
 
-        let argsStr = baseStr[argsStartAt..argsEndAt]
+    let argsStr = baseStr[argsStartAt..argsEndAt]
 
-        let mutable fields = []
+    let mutable fields = []
 
-        let separatedFieldsArray = argsStr.Split(",")
+    let separatedFieldsArray = argsStr.Split(",")
 
-        for field in separatedFieldsArray do
-            let trimmedField = field.Trim()
-            let name = trimmedField.Split(" ")[1]
-            let columnType = trimmedField.Split(" ")[0]
-            fields <- List.append fields [ Field(name, columnType) ]
+    for field in separatedFieldsArray do
+        let trimmedField = field.Trim()
+        let name = trimmedField.Split(" ")[1]
+        let columnType = trimmedField.Split(" ")[0]
+        fields <- List.append fields [ Field(name, columnType) ]
 
-        Ok(ClassInformation(baseStr[classNameStartAt..classNameEndAt].Trim(), fields))
+    Ok(ClassInformation(baseStr[classNameStartAt..classNameEndAt].Trim(), fields))
+
 
 let makeClassInformationFromClass (lines: string array) =
     let mutable isStarted = false
@@ -91,34 +89,32 @@ let makeClassInformationFromClass (lines: string array) =
                     isEnded <- true
 
 
-    match baseStr.Length with
-    | 0 -> Error "record is not found."
-    | _ ->
-        let spaceLength = " ".Length
+    let spaceLength = " ".Length
 
-        let classNameStartAt =
-            baseStr.IndexOf(classNamePrefix) + classNamePrefix.Length + spaceLength
+    let classNameStartAt =
+        baseStr.IndexOf(classNamePrefix) + classNamePrefix.Length + spaceLength
 
-        let classNameEndAt = baseStr.IndexOf(separator) - separator.Length - spaceLength
-        let argsStartAt = baseStr.IndexOf(separator) + separator.Length
-        let argsEndAt = baseStr.IndexOf(argsSuffix) - argsSuffix.Length
+    let classNameEndAt = baseStr.IndexOf(separator) - separator.Length - spaceLength
+    let argsStartAt = baseStr.IndexOf(separator) + separator.Length
+    let argsEndAt = baseStr.IndexOf(argsSuffix) - argsSuffix.Length
 
-        let argsStr = baseStr[argsStartAt..argsEndAt]
+    let argsStr = baseStr[argsStartAt..argsEndAt]
 
-        let mutable fields = []
+    let mutable fields = []
 
-        let separatedFieldsArray = argsStr.Split(delimiter)
+    let separatedFieldsArray = argsStr.Split(delimiter)
 
-        for field in separatedFieldsArray do
-            let str = field.Trim()
+    for field in separatedFieldsArray do
+        let str = field.Trim()
 
-            if str.StartsWith("private") || str.StartsWith("public") then
-                let trimmedField = str[0 .. str.Length - 2].TrimEnd() // remove tailing ";"
-                let name = trimmedField.Split(" ")[2]
-                let columnType = trimmedField.Split(" ")[1]
-                fields <- List.append fields [ Field(name, columnType) ]
+        if str.StartsWith("private") || str.StartsWith("public") then
+            let trimmedField = str[0 .. str.Length - 2].TrimEnd() // remove tailing ";"
+            let name = trimmedField.Split(" ")[2]
+            let columnType = trimmedField.Split(" ")[1]
+            fields <- List.append fields [ Field(name, columnType) ]
 
-        Ok(ClassInformation(baseStr[classNameStartAt..classNameEndAt].Trim(), fields))
+    Ok(ClassInformation(baseStr[classNameStartAt..classNameEndAt].Trim(), fields))
+
 
 let makeClassInformation (lines: string array) =
     let mutable result = Error "record or class is not contained."
