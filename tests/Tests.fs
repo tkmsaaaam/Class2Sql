@@ -5,9 +5,9 @@ open Xunit
 open Program
 
 [<Fact>]
-let ``makeClassInformationFromRecord is ok, lines is single line.`` () =
+let ``makeMetaDataFromRecord is ok, lines is single line.`` () =
     let lines = [| "public record Table(String arg1){}" |]
-    let actual = makeClassInformationFromRecord (lines)
+    let actual = makeMetaDataFromRecord (lines)
     Assert.True(Result.isOk (actual))
     let mutable tableName = null
     let mutable arg1Name = null
@@ -22,9 +22,9 @@ let ``makeClassInformationFromRecord is ok, lines is single line.`` () =
     Assert.Equal("arg1", arg1Name)
 
 [<Fact>]
-let ``makeClassInformationFromRecord is ok, lines is multiple lines.`` () =
+let ``makeMetaDataFromRecord is ok, lines is multiple lines.`` () =
     let lines = [| "public record Table(String arg1){"; "}" |]
-    let actual = makeClassInformationFromRecord (lines)
+    let actual = makeMetaDataFromRecord (lines)
     Assert.True(Result.isOk (actual))
     let mutable tableName = null
     let mutable arg1Name = null
@@ -39,9 +39,9 @@ let ``makeClassInformationFromRecord is ok, lines is multiple lines.`` () =
     Assert.Equal("arg1", arg1Name)
 
 [<Fact>]
-let ``makeClassInformationFromRecord is ok, args is multiple lines.`` () =
+let ``makeMetaDataFromRecord is ok, args is multiple lines.`` () =
     let lines = [| "public record Table(String arg1,"; "Integer arg2"; "){"; "}" |]
-    let actual = makeClassInformationFromRecord (lines)
+    let actual = makeMetaDataFromRecord (lines)
     Assert.True(Result.isOk (actual))
     let mutable tableName = null
     let mutable arg1Name = null
@@ -59,9 +59,9 @@ let ``makeClassInformationFromRecord is ok, args is multiple lines.`` () =
     Assert.Equal("arg2", arg2Name)
 
 [<Fact>]
-let ``makeClassInformationFromClass is ok, class has a private arg.`` () =
+let ``makeMetaDataFromClass is ok, class has a private arg.`` () =
     let lines = [| "public class Table {private String arg1;}" |]
-    let actual = makeClassInformationFromClass (lines)
+    let actual = makeMetaDataFromClass (lines)
     Assert.True(Result.isOk (actual))
     let mutable tableName = null
     let mutable arg1Name = null
@@ -76,9 +76,9 @@ let ``makeClassInformationFromClass is ok, class has a private arg.`` () =
     Assert.Equal("arg1", arg1Name)
 
 [<Fact>]
-let ``makeClassInformationFromClass is ok, class has a public arg.`` () =
+let ``makeMetaDataFromClass is ok, class has a public arg.`` () =
     let lines = [| "public class Table {public String arg1;}" |]
-    let actual = makeClassInformationFromClass (lines)
+    let actual = makeMetaDataFromClass (lines)
     Assert.True(Result.isOk (actual))
     let mutable tableName = null
     let mutable arg1Name = null
@@ -93,14 +93,14 @@ let ``makeClassInformationFromClass is ok, class has a public arg.`` () =
     Assert.Equal("arg1", arg1Name)
 
 [<Fact>]
-let ``makeClassInformationFromClass is ok, args is multiple lines.`` () =
+let ``makeMetaDataFromClass is ok, args is multiple lines.`` () =
     let lines =
         [| "public class Table {"
            "\tprivate String arg1;"
            "\tpublic Integer arg2;"
            "}" |]
 
-    let actual = makeClassInformationFromClass (lines)
+    let actual = makeMetaDataFromClass (lines)
     Assert.True(Result.isOk (actual))
     let mutable tableName = null
     let mutable arg1Name = null
@@ -118,9 +118,9 @@ let ``makeClassInformationFromClass is ok, args is multiple lines.`` () =
     Assert.Equal("arg2", arg2Name)
 
 [<Fact>]
-let ``makeClassInformation is error`` () =
+let ``makeMetaData is error`` () =
     let lines = [||]
-    let actual = makeClassInformation (lines)
+    let actual = makeMetaData (lines)
     Assert.True(Result.isError (actual))
 
     match actual with
@@ -128,7 +128,7 @@ let ``makeClassInformation is error`` () =
     | Ok(resultValue) -> failwith "Not Implemented"
 
 [<Fact>]
-let ``makeClassInformation is ok, when record.`` () =
+let ``makeMetaData is ok, when record.`` () =
     let lines =
         [| "package example;"
            "public record Table(String arg1,"
@@ -136,7 +136,7 @@ let ``makeClassInformation is ok, when record.`` () =
            "){"
            "}" |]
 
-    let actual = makeClassInformationFromRecord (lines)
+    let actual = makeMetaDataFromRecord (lines)
     Assert.True(Result.isOk (actual))
     let mutable tableName = null
     let mutable arg1Name = null
@@ -154,7 +154,7 @@ let ``makeClassInformation is ok, when record.`` () =
     Assert.Equal("arg2", arg2Name)
 
 [<Fact>]
-let ``makeClassInformation is ok, when class.`` () =
+let ``makeMetaData is ok, when class.`` () =
     let lines =
         [| "pakcage example;"
            "public class Table {"
@@ -162,7 +162,7 @@ let ``makeClassInformation is ok, when class.`` () =
            "\tpublic Integer arg2;"
            "}" |]
 
-    let actual = makeClassInformationFromClass (lines)
+    let actual = makeMetaDataFromClass (lines)
     Assert.True(Result.isOk (actual))
     let mutable tableName = null
     let mutable arg1Name = null
@@ -185,6 +185,6 @@ let ``makeQuery`` () =
     let column1 = Field("columnOne", "String")
     let column2 = Field("column2", "Integer")
     let list = List.append [ column1 ] [ column2 ]
-    let classInformartion = ClassInformation(tableName, list)
+    let classInformartion = ClassMetaData(tableName, list)
     let actual = makeQuery (classInformartion)
     Assert.Equal("SELECT\n\tA.COLUMN_ONE, A.COLUMN2\nFROM\n\tTABLE A", actual)

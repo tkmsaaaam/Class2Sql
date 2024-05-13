@@ -19,12 +19,12 @@ type Field =
     new(name: string, columnType: string) = { name = name; columnType = columnType }
 
 [<Struct>]
-type ClassInformation =
+type ClassMetaData =
     val name: string
     val fields: Field list
     new(name: string, fields: Field list) = { name = name; fields = fields }
 
-let makeClassInformationFromRecord (lines: string array) =
+let makeMetaDataFromRecord (lines: string array) =
     let mutable isStarted = false
     let mutable isEnded = false
     let mutable baseStr = ""
@@ -65,10 +65,10 @@ let makeClassInformationFromRecord (lines: string array) =
         let columnType = trimmedField.Split(" ")[0]
         fields <- List.append fields [ Field(name, columnType) ]
 
-    Ok(ClassInformation(baseStr[classNameStartAt..classNameEndAt].Trim(), fields))
+    Ok(ClassMetaData(baseStr[classNameStartAt..classNameEndAt].Trim(), fields))
 
 
-let makeClassInformationFromClass (lines: string array) =
+let makeMetaDataFromClass (lines: string array) =
     let mutable isStarted = false
     let mutable isEnded = false
     let mutable baseStr = ""
@@ -113,23 +113,23 @@ let makeClassInformationFromClass (lines: string array) =
             let columnType = trimmedField.Split(" ")[1]
             fields <- List.append fields [ Field(name, columnType) ]
 
-    Ok(ClassInformation(baseStr[classNameStartAt..classNameEndAt].Trim(), fields))
+    Ok(ClassMetaData(baseStr[classNameStartAt..classNameEndAt].Trim(), fields))
 
 
-let makeClassInformation (lines: string array) =
+let makeMetaData (lines: string array) =
     let mutable result = Error "record or class is not contained."
 
     for i in 0 .. lines.Length - 1 do
         let line = lines[i]
 
         if line.Contains(" record ") then
-            result <- makeClassInformationFromRecord lines[i..]
+            result <- makeMetaDataFromRecord lines[i..]
         else if line.Contains(" class ") then
-            result <- makeClassInformationFromClass lines[i..]
+            result <- makeMetaDataFromClass lines[i..]
 
     result
 
-let makeQuery (classInformartion: ClassInformation) =
+let makeQuery (classInformartion: ClassMetaData) =
 
     let mutable selectClause = "SELECT\n\t"
 
@@ -177,7 +177,7 @@ let main =
     match lines with
     | Error err -> printfn "can not read lines: %s" err
     | Ok ok ->
-        let classInformartion = makeClassInformation ok
+        let classInformartion = makeMetaData ok
 
         match classInformartion with
         | Error e -> printfn "can not get class information: %s" e
