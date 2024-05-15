@@ -76,25 +76,22 @@ let makeMetaDataFromClass (lines: string array) =
     let classNamePrefix = "class"
     let separator = "{"
     let argsSuffix = "}"
-    let delimiter = "---"
 
     for line in lines do
         if not isEnded then
             if line.Contains(" " + classNamePrefix + " ") || isStarted then
                 isStarted <- true
 
-                baseStr <- baseStr + line + delimiter
+                let argsSuffixIndex = line.IndexOf(argsSuffix)
+
+                if argsSuffixIndex >= 0 then
+                    baseStr <- baseStr + line[..argsSuffixIndex]
+                else
+                    baseStr <- baseStr + line
 
                 if line.Contains(argsSuffix) then
                     isEnded <- true
 
-
-    let spaceLength = " ".Length
-
-    let classNameStartAt =
-        baseStr.IndexOf(classNamePrefix) + classNamePrefix.Length + spaceLength
-
-    let classNameEndAt = baseStr.IndexOf(separator) - separator.Length - spaceLength
     let argsStartAt = baseStr.IndexOf(separator) + separator.Length
     let argsEndAt = baseStr.IndexOf(argsSuffix) - argsSuffix.Length
 
@@ -102,17 +99,19 @@ let makeMetaDataFromClass (lines: string array) =
 
     let mutable fields = []
 
-    let separatedFieldsArray = argsStr.Split(delimiter)
+    let separatedFieldsArray = argsStr.Split(";")
 
     for field in separatedFieldsArray do
         let str = field.Trim()
 
         if str.StartsWith("private") || str.StartsWith("public") then
-            let trimmedField = str[0 .. str.Length - 2].TrimEnd() // remove tailing ";"
+            let trimmedField = str.Trim()
             let name = trimmedField.Split(" ")[2]
             let columnType = trimmedField.Split(" ")[1]
             fields <- List.append fields [ Field(name, columnType) ]
 
+    let classNameStartAt = baseStr.IndexOf(classNamePrefix) + classNamePrefix.Length
+    let classNameEndAt = baseStr.IndexOf(separator) - separator.Length
     Ok(ClassMetaData(baseStr[classNameStartAt..classNameEndAt].Trim(), fields))
 
 
