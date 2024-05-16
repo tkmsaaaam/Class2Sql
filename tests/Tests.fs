@@ -92,6 +92,60 @@ let ``makeMetaDataFromClass is ok, args is multiple lines.`` () =
     | Error(errorValue) -> failwith "Not Implemented"
 
 [<Fact>]
+let ``makeMetaDataFromClass is ok, with static`` () =
+    let lines =
+        [| "public class Table {"
+           "\tprivate static String staticValue = \"value\";"
+           "\tprivate String arg1;"
+           "}" |]
+
+    let actual = makeMetaDataFromClass (lines)
+    Assert.True(Result.isOk (actual))
+
+    match actual with
+    | Ok o ->
+        Assert.Equal("Table", o.name)
+        Assert.Equal(1, o.fields.Length)
+        Assert.Equal("arg1", o.fields[0].name)
+    | Error(errorValue) -> failwith "Not Implemented"
+
+[<Fact>]
+let ``makeMetaDataFromClass is ok, with final`` () =
+    let lines =
+        [| "public class Table {"
+           "\tprivate final String staticValue = \"value\";"
+           "\tprivate String arg1;"
+           "}" |]
+
+    let actual = makeMetaDataFromClass (lines)
+    Assert.True(Result.isOk (actual))
+
+    match actual with
+    | Ok o ->
+        Assert.Equal("Table", o.name)
+        Assert.Equal(1, o.fields.Length)
+        Assert.Equal("arg1", o.fields[0].name)
+    | Error(errorValue) -> failwith "Not Implemented"
+
+[<Fact>]
+let ``makeMetaDataFromClass is ok, with final and static`` () =
+    let lines =
+        [| "public class Table {"
+           "\tprivate final static String staticValue = \"value\";"
+           "\tprivate String arg1;"
+           "}" |]
+
+    let actual = makeMetaDataFromClass (lines)
+    Assert.True(Result.isOk (actual))
+
+    match actual with
+    | Ok o ->
+        Assert.Equal("Table", o.name)
+        Assert.Equal(1, o.fields.Length)
+        Assert.Equal("arg1", o.fields[0].name)
+    | Error(errorValue) -> failwith "Not Implemented"
+
+[<Fact>]
 let ``makeMetaData is error`` () =
     let lines = [||]
     let actual = makeMetaData (lines)

@@ -104,7 +104,10 @@ let makeMetaDataFromClass (lines: string array) =
     for field in separatedFieldsArray do
         let str = field.Trim()
 
-        if str.StartsWith("private") || str.StartsWith("public") then
+        if
+            (str.StartsWith("private") || str.StartsWith("public"))
+            && not (str.Contains(" final ") || str.Contains(" static "))
+        then
             let trimmedField = str.Trim()
             let name = trimmedField.Split(" ")[2]
             let columnType = trimmedField.Split(" ")[1]
